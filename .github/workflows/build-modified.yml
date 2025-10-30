@@ -1,0 +1,57 @@
+name: Build-Modified
+
+on:
+  push:
+    branches: [ unblock-with-actions ]
+  pull_request:
+  release:
+    types: [ created ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          cache: yarn
+
+      - name: Install dependencies
+        run: |
+          yarn install
+      - name: Make Dist
+        run: |
+          yarn dist
+      - name: Build for Linux
+        run: |
+          yarn build linux
+      - name: Build for MacOS
+        run: |
+          yarn build darwin
+      - name: Build for Windows
+        run: |
+          yarn build win32
+      
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: build/Electron NCM-linux-x64
+        
+      - name: Upload MacOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: build/Electron NCM-darwin-x64
+          
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: build/Electron NCM-win32-x64
